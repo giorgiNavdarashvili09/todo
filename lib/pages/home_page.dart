@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:todo/data_models/todo.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -8,19 +9,26 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final todoInputController = TextEditingController();
-  final List<String> todos = [];
+  final titleController = TextEditingController();
+  final descriptionController = TextEditingController();
+  final List<Todo> todos = [];
 
   List<Widget> getTodoWidgets() {
     List<Widget> temp = [];
 
-    for(int i = 0; i < todos.length; i++) {
-      temp.add(Text(todos[i]));
+    for (int i = 0; i < todos.length; i++) {
+      temp.add(
+        Column(
+        children: [
+          Text(todos[i].title),
+          Text(todos[i].description),
+        ],
+
+      ),);
     }
 
     return temp;
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -28,34 +36,40 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: const Text("Todo"),
       ),
-      body: Column(
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 200,
-                child: TextField(
-                  controller: todoInputController,
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    todos.add(todoInputController.text);
-                    todoInputController.clear();
-                  });
-                },
-                child: Text("Add"),
-              ),
-            ],
-          ),
-          Container(
-            height: 200,
-            child: ListView(
-              children: getTodoWidgets(),
+      body: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16),
+        child: Column(
+          children: [
+            TextField(
+              controller: titleController,
+              decoration: const InputDecoration(hintText: "title"),
             ),
-          ),
-        ],
+            TextField(
+              controller: descriptionController,
+              decoration: const InputDecoration(hintText: "description"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  todos.add(
+                    Todo(
+                      title: titleController.text,
+                      description: descriptionController.text,
+                    ),
+                  );
+                });
+                titleController.clear();
+                descriptionController.clear();
+              },
+              child: const Text("Add"),
+            ),
+            SizedBox(
+              child: ListView(
+                children: getTodoWidgets(),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
