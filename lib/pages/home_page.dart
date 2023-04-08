@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:todo/data_models/todo.dart';
+import 'package:todo/database/database_helper.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -11,24 +12,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final titleController = TextEditingController();
   final descriptionController = TextEditingController();
-  final List<Todo> todos = [];
-
-  List<Widget> getTodoWidgets() {
-    List<Widget> temp = [];
-
-    for (int i = 0; i < todos.length; i++) {
-      temp.add(
-        Column(
-        children: [
-          Text(todos[i].title),
-          Text(todos[i].description),
-        ],
-
-      ),);
-    }
-
-    return temp;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,37 +21,69 @@ class _HomePageState extends State<HomePage> {
       ),
       body: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16),
-        child: Column(
-          children: [
-            TextField(
-              controller: titleController,
-              decoration: const InputDecoration(hintText: "title"),
-            ),
-            TextField(
-              controller: descriptionController,
-              decoration: const InputDecoration(hintText: "description"),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  todos.add(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              TextField(
+                controller: titleController,
+                decoration: const InputDecoration(hintText: "title"),
+              ),
+              TextField(
+                controller: descriptionController,
+                decoration: const InputDecoration(hintText: "description"),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  await DatabaseHelper().insertTodo(
                     Todo(
                       title: titleController.text,
                       description: descriptionController.text,
                     ),
                   );
-                });
-                titleController.clear();
-                descriptionController.clear();
-              },
-              child: const Text("Add"),
-            ),
-            SizedBox(
-              child: ListView(
-                children: getTodoWidgets(),
+                  setState(() {});
+                  titleController.clear();
+                  descriptionController.clear();
+                },
+                child: const Text("Add"),
               ),
-            ),
-          ],
+              SizedBox(
+                height: 400,
+                child: FutureBuilder<List<Todo>>(
+                  future: DatabaseHelper().getTodos(),
+                  builder: (context, snapshot) {
+                    final todos = snapshot.data ?? [];
+                    return ListView.builder(
+                        itemCount: todos.length,
+                        itemBuilder: (context, index) {
+                          final todo = todos[index];
+                          return Container(
+                            margin: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius:
+                                    const BorderRadius.all(Radius.circular(8)),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.5),
+                                    blurRadius: 5,
+                                    offset: const Offset(5, 5),
+                                    spreadRadius: 2,
+                                  )
+                                ]),
+                            child: ListTile(
+                              title: Text(todo.title),
+                              subtitle: Text(todo.description),
+                            ),
+                          );
+                        });
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
