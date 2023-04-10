@@ -76,6 +76,13 @@ class _HomePageState extends State<HomePage> {
                             child: ListTile(
                               title: Text(todo.title),
                               subtitle: Text(todo.description),
+                              trailing: IconButton(
+                                onPressed: () async {
+                                  await DatabaseHelper().deleteTodo(todo.id!);
+                                  setState(() {});
+                                },
+                                icon: const Icon(Icons.delete),
+                              ),
                             ),
                           );
                         });

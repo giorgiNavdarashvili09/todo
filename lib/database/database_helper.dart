@@ -76,6 +76,15 @@ class DatabaseHelper {
     ));
   }
 
+  Future<void> deleteTodo(int id) async {
+    final db = await database;
+    await db?.delete(
+      'todos',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
 }
 
 
